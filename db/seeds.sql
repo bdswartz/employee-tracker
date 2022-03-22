@@ -30,7 +30,7 @@ VALUES
   ('Sales Manager', 150000, 1),
   ('Lead Engineer', 120000, 3),
   ('Account Manager', 80000, 2),
-  ('Accountant', 500000, 2),
+  ('Accountant', 50000, 2),
   ('Chief Counsel', 180000, 4),
   ('Lawyer', 125000, 4),
   ('Sales Person', 100000, 1),

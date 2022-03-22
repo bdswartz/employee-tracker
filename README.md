@@ -17,6 +17,9 @@ npm i
 ## Usage
 Type "node index.js" while in the root directory of the application files
 
+
+[Usage Video](screen-recording.mov "Usage Video")
+
 ---
 
 ## Technologies
@@ -60,8 +63,10 @@ GIVEN a command-line application that accepts user input
 
 ---
 ## Features
+-  User input directs thee user to prepared SQL queries.
+-  Provides dynamically populated user input lists to aid the user.
 
-![Application Page](app-screen-shot.jpg "Application Page")
+![Employee Table](employee-table-ss.jpg "Screen Shot")
 
 ---
 
