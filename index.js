@@ -1,7 +1,5 @@
 const inquirer = require("inquirer");
 const db = require("./db/connection");
-// const { viewRoles, viewEmployees, viewEmplByManager } = require("./lib/view-data");
-// const { addDepartment, addRole, addEmployee, updateEmpRole } = require("./lib/add-update-data");
 const cTable = require('console.table');
 const deptChoicesArray = [];
 
@@ -53,6 +51,7 @@ const employeeQuestions = [
 ];
 
 const promptUser = () => {
+    // prompt user for input on which report is needed
     return inquirer.prompt([{ 
     type: 'list',
     name: 'masterAction',
@@ -67,7 +66,7 @@ const promptUser = () => {
 
 
 const sqlCreate = (promptAnswer) => {
-    // let sql = ``;
+// process the input from the user with a switch that route to the proper function
     switch (promptAnswer.masterAction) {
         case 'View All Departments':
             viewDepartments();
@@ -102,16 +101,15 @@ const sqlCreate = (promptAnswer) => {
     };
 };
 
-const viewDepartments = () => {
+
+const viewDepartments = async () => {
     sql = `SELECT * FROM department`;
-    db.promise().query(sql)
-    .then(([rows,fields]) => {
-        return console.table("View Departments", rows);
-    })
-    .then(results => {
-        promptUser();
-    });
-     
+    // query the db
+    const [rows,fields] = await db.promise().query(sql);
+    // display results
+    console.table("View Departments", rows);
+    // prompt the user for next report
+    promptUser();
 };
 
 const viewRoles = () => {
@@ -150,7 +148,6 @@ const viewBudget = () => {
     const sqlDept = `SELECT department.name FROM department`;
     db.promise().query(sqlDept)
     .then(([row,fields]) => {
-        // console.log(row);
         // assign query results to choice array
         for (let index = 0; index < row.length; index++) {
             deptChoicesArray[index] = row[index].name;
@@ -163,6 +160,7 @@ const viewBudget = () => {
             choices: deptChoicesArray
         })
         .then(promptAnswer => {
+            // generate SQL statement from user input of department
            useDeptChoice = promptAnswer.budgetDept;
            sql = `SELECT SUM(role.salary) AS budget
             FROM employee
@@ -172,7 +170,7 @@ const viewBudget = () => {
             db.promise().query(sql)
             .then(([row,fields]) => {
                 let {budget} = row[0];
-                console.log(budget);
+                // dis[play query results
                 console.log(`The total budget for the ${useDeptChoice} department is $${budget}`);
             })
             .then(results => {
@@ -185,16 +183,15 @@ const viewBudget = () => {
 const viewEmplByManager = () => {
     let mngrChoicesArray = [];
     let useMngrChoice;
-    // Query departments for prompt list choices
+    // Query employees for managers
     const sqlDept = `SELECT CONCAT(first_name, ' ',last_name) AS name FROM employee WHERE manager_id IS NULL;`;
     db.promise().query(sqlDept)
     .then(([row,fields]) => {
-        // console.log(row);
         // assign query results to choice array
         for (let index = 0; index < row.length; index++) {
             mngrChoicesArray[index] = row[index].name;
         };
-        // prompt user to choose a department
+        // prompt user to choose a manager
         inquirer.prompt({
             type: 'list',
             name: 'manager',
@@ -272,11 +269,10 @@ const addEmployee = () => {
 
 const updateEmpRole = () => {
     let useRoleAnswers;
-    // Query departments for prompt list choices
+    // generate list of employee names to act as list choices for user prompt
     const sqlNames = `SELECT CONCAT(first_name, ' ',last_name) AS name FROM employee`;
     db.promise().query(sqlNames)
     .then(([row,fields]) => {
-        // console.log(row);
         let employeeChoices = [];
         for (let index = 0; index < row.length; index++) {
             employeeChoices[index] = row[index].name;
@@ -296,9 +292,11 @@ const updateEmpRole = () => {
     ])
     })
     .then(roleAnswers => {
+        // generate SQL statement
         useRoleAnswers = roleAnswers;
         const emplSql = `UPDATE employee SET role_id = (SELECT id FROM role WHERE title = '${roleAnswers.title}') 
         WHERE CONCAT(employee.first_name, ' ',employee.last_name) = '${roleAnswers.employee}'`
+        // Update db
         db.promise().query(emplSql)
         .then(rows => {
             console.log(`${useRoleAnswers.employee}'s Role was updated to ${useRoleAnswers.title}`)
@@ -309,4 +307,5 @@ const updateEmpRole = () => {
     });
 };
 
+// initiate the app
 promptUser();
